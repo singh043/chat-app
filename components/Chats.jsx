@@ -1,6 +1,7 @@
 import React,{ useEffect, useRef, useState } from 'react';
 import { useChatContext } from '@/context/chatContext';
-import { Timestamp, arrayRemove, arrayUnion, collection, deleteField, doc, getDoc, onSnapshot, updateDoc, where } from 'firebase/firestore';
+import { Timestamp, arrayRemove, arrayUnion, collection, deleteField, 
+    doc, getDoc, onSnapshot, updateDoc, where } from 'firebase/firestore';
 import { db } from '@/firebase/firebase';
 import { RiSearch2Line } from "react-icons/ri";
 import Avatar from './Avatar';
@@ -9,6 +10,11 @@ import { formatDate } from '@/utils/helpers';
 import { query } from 'firebase/database';
 import { FaImage } from "react-icons/fa6";
 import { IoCheckmarkDone } from "react-icons/io5";
+import { TiDocumentText } from "react-icons/ti";
+import { PiFileZipFill } from "react-icons/pi";
+import { BsFiletypeExe } from "react-icons/bs";
+import { IoVideocam } from "react-icons/io5";
+import { MdLibraryMusic } from "react-icons/md";
 import { DELETED_FOR_ME } from '@/utils/constants';
 
 const Chats = () => {
@@ -19,7 +25,9 @@ const Chats = () => {
     const isBlockExecutedRef = useRef(false);
     const [unreadMsgs, setUnreadMsgs] = useState({});
     const [readStatus, setReadStatus] = useState({});
-    const { users, setUnread, unread, resetFooterStates, data, dispatch, setUsers, chats, setChats, selectedChat, setSelectedChat } = useChatContext();
+    const { users, setUnread, unread, resetFooterStates, 
+            data, dispatch, setUsers, chats, setChats,
+            selectedChat, setSelectedChat } = useChatContext();
 
     useEffect(() => {
         resetFooterStates();
@@ -192,12 +200,11 @@ const Chats = () => {
                                                 justify-between'>
                                                 <div className='font-medium'>{`${user.displayName} ${ currentUser?.uid === user?.uid ? "(You)" : "" }`}</div>
                                                 {( chat[1]?.lastMessage?.text || chat[1]?.lastMessage?.img ) && <div className='text-c3 text-xs'>{formatDate(date)}</div>}
-                                                {/* <div className='text-c3 text-xs'>{formatDate(chat[1]?.date?.toDate())}</div> */}
                                             </span>
-                                            <div className={`text-sm text-c3 flex items-center gap-1`}>
+                                            <div className={`text-sm text-c3 flex items-center gap-1 ${ unreadMsgs?.[chat[0]]?.length> 0 ? "max-w-[90%]" : ""}`}>
                                                 {
                                                     (isUserBlocked && "You blocked this user.")||
-                                                    ((chat[1]?.lastMessage?.text || chat[1]?.lastMessage?.img) && (
+                                                    ((chat[1]?.lastMessage?.text || chat[1]?.lastMessage?.type) && (
                                                         <>
                                                             {
                                                                 chat[1]?.lastMessage?.sender === currentUser?.uid &&
@@ -206,9 +213,14 @@ const Chats = () => {
                                                                         color={`${ !readStatus?.[chat[0]]?.length ? "#2e58f0" : "white"}`} 
                                                                     size={18} />
                                                                 </p>}
-                                                            { chat[1]?.lastMessage?.img && <p className='flex items-center'><FaImage />&#160;</p>}
+                                                            { chat[1]?.lastMessage?.type === "image" && <p className='flex items-center'><FaImage size={16} /></p>}
+                                                            { chat[1]?.lastMessage?.type === "audio" && <p className='flex items-center'><MdLibraryMusic size={20} /></p>}
+                                                            { chat[1]?.lastMessage?.type === "video" && <p className='flex items-center'><IoVideocam size={20} /></p>}
+                                                            { (chat[1]?.lastMessage?.extName === "ppt" || chat[1]?.lastMessage?.extName === "doc" || chat[1]?.lastMessage?.extName === "docs" || chat[1]?.lastMessage?.extName === "docx" || chat[1]?.lastMessage?.extName === "ppt" || chat[1]?.lastMessage?.extName === "pptx" || chat[1]?.lastMessage?.extName === "txt" || chat[1]?.lastMessage?.extName === "xls" || chat[1]?.lastMessage?.extName === "xlsx") && <p className='flex items-center'><TiDocumentText size={20} /></p>}
+                                                            { chat[1]?.lastMessage?.extName === "zip" && <p className='flex items-center'><PiFileZipFill size={20} /></p>}
+                                                            { chat[1]?.lastMessage?.extName === "exe" && <p className='flex items-center'><BsFiletypeExe size={20} /></p>}
                                                             <p className='line-clamp-1 break-all'>
-                                                                { chat[1]?.lastMessage?.text?.trim() ? chat[1]?.lastMessage?.text : "image" }
+                                                                { chat[1]?.lastMessage?.text?.trim() ? chat[1]?.lastMessage?.text : chat[1]?.lastMessage?.type === "image" ? "image" : chat[1]?.lastMessage?.type === "video" ? "video" : chat[1]?.lastMessage?.name }
                                                             </p>
                                                         </>
                                                     )) || "Send message"}

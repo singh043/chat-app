@@ -17,16 +17,17 @@ const Composebar = () => {
     const [sChats, setSChats] = useState([]);
     const [showBlockPopup, setShowBlockPopup] = useState(false);
     const { inputText, users, selectedChat, setInputText, data, attachment, setAttachment,
-            attachmentPreview, setAttachmentPreview, editMsg, setEditMsg , chats
-            , setLoading } = useChatContext();
+            attachmentPreview, setAttachmentPreview, editMsg, setEditMsg , chats,
+            fileType, fileName, fileExt, setFileType, setFileName, setFileExt
+            , setFileSize, fileSize, loading, setLoading } = useChatContext();
 
-    const IamBlocked = users[data.user.uid]?.blockedUsers?.find(u => u === currentUser.uid);
-    const isUserBlocked = users[currentUser.uid]?.blockedUsers?.find(u => u === data?.user?.uid);
+    const IamBlocked = users[data?.user?.uid]?.blockedUsers?.find(u => u === currentUser?.uid);
+    const isUserBlocked = users[currentUser?.uid]?.blockedUsers?.find(u => u === data?.user?.uid);
 
     useEffect(() => {
         setInputText(editMsg?.text || "");
         //eslint-disable-next-line
-    }, [editMsg])    
+    }, [editMsg])   
 
     useEffect(() => {
         const getChats = () => {
@@ -112,7 +113,10 @@ const Composebar = () => {
                     let updatedMessages = chatDoc.data().messages.map((message) => {
                         if(message.id === messageId){
                             message.text = inputText
-                            message.img = downloadURL
+                            message.url = downloadURL
+                            message.ext = fileExt
+                            message.type = fileType
+                            message.name = fileName
                             message.edited = true                      
                             // if(message.deletedInfo){
                             //     message.deletedInfo = null
@@ -158,7 +162,10 @@ const Composebar = () => {
             id: messageId,
         }
         if(attachment || attachmentPreview){
-            msg.img = true
+            msg.extName = fileExt;
+            msg.type = fileType;
+            msg.name = fileName;
+            msg.size = fileSize;
         }
 
         const combinedId = currentUser.uid > selectedChat.uid ? 
@@ -215,10 +222,14 @@ const Composebar = () => {
             }
         }
 
+        setFileExt("");
+        setFileSize("");
+        setFileName("");
+        setEditMsg(null);
         setInputText("");
+        setFileType(null);
         setAttachment(null);
         setAttachmentPreview(null);
-        setEditMsg(null);
     }
 
     const handleSend = async () => {
@@ -244,7 +255,7 @@ const Composebar = () => {
         if(attachment1) {
             //file uploading logic
             const storage = getStorage();
-            const storageRef = ref(storage, messageUniqueId);
+            const storageRef = ref(storage,"( " + messageUniqueId + " )___" + fileName);
 
             const uploadTask = uploadBytesResumable(storageRef, attachment1);
 
@@ -267,7 +278,6 @@ const Composebar = () => {
             }, 
             () => {
                 getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
-                    setLoading(true);
                     if(IamBlocked) {
                         await updateDoc(doc(db, "chats", data.chatId), {
                             messages: arrayUnion({
@@ -276,7 +286,11 @@ const Composebar = () => {
                                 sender: currentUser.uid,
                                 date: Timestamp.now(),
                                 read: false,
-                                img: downloadURL,
+                                url: downloadURL,
+                                ext: fileExt,
+                                type: fileType,
+                                name: fileName,
+                                size: fileSize,
                                 deletedInfo : {
                                     [data?.user?.uid]: DELETED_FOR_ME
                                 }
@@ -291,7 +305,11 @@ const Composebar = () => {
                                     sender: currentUser.uid,
                                     date: Timestamp.now(),
                                     read: true,
-                                    img: downloadURL,
+                                    url: downloadURL,
+                                    ext: fileExt,
+                                    type: fileType,
+                                    name: fileName,
+                                    size: fileSize,
                                 })
                             })
                         }else{
@@ -302,7 +320,11 @@ const Composebar = () => {
                                     sender: currentUser.uid,
                                     date: Timestamp.now(),
                                     read: false,
-                                    img: downloadURL,
+                                    url: downloadURL,
+                                    ext: fileExt,
+                                    type: fileType,
+                                    name: fileName,
+                                    size: fileSize,
                                 })
                             })
                         }
@@ -355,7 +377,10 @@ const Composebar = () => {
             id: messageUniqueId,
         }
         if(attachment1){
-            msg.img = true
+            msg.extName = fileExt;
+            msg.type = fileType;
+            msg.name = fileName;
+            msg.size = fileSize;
         }
 
         if(IamBlocked) {
@@ -399,6 +424,10 @@ const Composebar = () => {
                 });
             }
         }
+        setFileExt("");
+        setFileSize("");
+        setFileName("");
+        setFileType(null);
     }
 
     return (
