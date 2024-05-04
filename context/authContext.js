@@ -3,11 +3,11 @@ import { profileColors } from "@/utils/constants";
 import { getDoc, doc, setDoc, arrayRemove, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged, signOut as authSignOut } from "firebase/auth";
 import { createContext, useContext, useEffect, useReducer, useState } from "react";
-import { GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'firebase/auth';
 import { ref as rtdbRef, set, onValue, onDisconnect, serverTimestamp } from "firebase/database";
 
 const gProvider = new GoogleAuthProvider();
-const fProvider = new FacebookAuthProvider();
+const gHubProvider = new GithubAuthProvider();
 
 const UserContext = createContext();
 
@@ -92,10 +92,21 @@ export const UserProvider = ({ children }) => {
         }
     }
 
-    const signInWithFacebook = async () => {
+    const signInWithGithub = async () => {
         try {
-          await signInWithPopup(auth, fProvider).then(async (data) => {
-            console.log(data);
+          await signInWithPopup(auth, gHubProvider).then(async (data) => {
+            const userDoc = await getDoc(doc(db, "users", data?.user?.reloadUserInfo.localId));
+            if(!userDoc.exists()) {
+                const colorIndex = Math.floor(Math.random() * profileColors.length);
+                    await setDoc(doc(db, "users", data?.user?.reloadUserInfo.localId), {
+                        uid: data?.user?.reloadUserInfo.localId,
+                        displayName: data?.user?.reloadUserInfo.screenName,
+                        email: data?.user?.email || "Logged in with Github",
+                        color: profileColors[colorIndex],
+                        photoURL: data?.user?.reloadUserInfo?.photoUrl,
+                    })        
+                    await setDoc(doc(db, "userChats", data?.user?.reloadUserInfo.localId), {});
+            }
           });
         } catch (error) {
           console.error(error);
@@ -138,9 +149,11 @@ export const UserProvider = ({ children }) => {
         authSignOut(auth).then(() => {
             const myConnectionsRef = rtdbRef(dbt, `status/` + currentUser.uid);
             const runThis = async () => {
-                await updateDoc(doc(db, "users", selectedChat?.uid),{
-                    selectedChat: arrayRemove(currentUser.uid),
-                });
+                if(selectedChat){
+                    await updateDoc(doc(db, "users", selectedChat?.uid),{
+                        selectedChat: arrayRemove(currentUser?.uid),
+                    });
+                }
             }
             runThis();
             var isOfflineForDatabase = {
@@ -186,8 +199,8 @@ export const UserProvider = ({ children }) => {
             signOut, users, setUsers, 
             setChats, chats, selectedChat,
             setSelectedChat, state, dispatch,
-            signInWithGoogle, isTyping, setIsTyping,
-            inputText, setInputText, signInWithFacebook,
+            signInWithGoogle, signInWithGithub, isTyping, setIsTyping,
+            inputText, setInputText,
             imageViewer, setImageViewer, editMsg, setEditMsg,
             attachment, setAttachment, attachmentPreview, setAttachmentPreview,
             resetFooterStates,

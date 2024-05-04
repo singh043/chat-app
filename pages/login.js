@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { auth } from '@/firebase/firebase';
 import { signInWithEmailAndPassword,
   sendPasswordResetEmail } from 'firebase/auth';
-import { IoLogoGoogle, IoLogoFacebook } from "react-icons/io";
+import { IoLogoGoogle, IoLogoGithub } from "react-icons/io";
 import { useAuth } from '@/context/authContext';
 import { useRouter } from 'next/router';
 import ToastMessage from '@/components/ToastMessage';
@@ -14,7 +14,7 @@ const Login = () => {
 
   const router = useRouter();
   const [email, setEmail] = useState("");
-  const { currentUser, isLoading, signInWithGoogle, signInWithFacebook } = useAuth();
+  const { currentUser, isLoading, signInWithGoogle, signInWithGithub } = useAuth();
 
   useEffect(() => {
     if(!isLoading && currentUser){
@@ -67,7 +67,7 @@ const Login = () => {
 
         <div className='flex items-center gap-2 w-full mt-10 mb-5'>
           <div className='bg-gradient-to-r from-indigo-500 via-purple-500
-            to-pink-500 w-1/2 h-14 rounded-md cursor-pointer p-[1px]'
+            to-pink-500 h-14 rounded-md cursor-pointer p-[1px] w-1/2'
             onClick={signInWithGoogle} 
           >
               <div className='flex items-center justify-center gap-3 text-white
@@ -79,12 +79,12 @@ const Login = () => {
           
           <div className='bg-gradient-to-r from-indigo-500 via-purple-500
             to-pink-500 w-1/2 h-14 rounded-md cursor-pointer p-[1px]'
-            onClick={signInWithFacebook}
+            onClick={signInWithGithub}
           >
               <div className='flex items-center justify-center gap-3 text-white
                 font-semibold bg-c1 w-full h-full rounded-md'>
-                <IoLogoFacebook size={24} />
-                <span>Login with Facebook</span>
+                <IoLogoGithub size={24} />
+                <span>Login with Github</span>
               </div>
           </div>
         </div>
