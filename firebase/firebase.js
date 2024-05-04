@@ -5,7 +5,7 @@ import { getDatabase } from "firebase/database";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDYZKdblLeP1DYXv3JdhKWVuU91jmWXtQM",
+  apiKey: process.env.FIREBASE_API,
   authDomain: "chat-app-74289.firebaseapp.com",
   projectId: "chat-app-74289",
   storageBucket: "chat-app-74289.appspot.com",
@@ -26,7 +26,7 @@ export const storage = getStorage(app);
 // import { getFirestore } from "firebase/firestore";
 
 // const firebaseConfig = {
-//   apiKey: "AIzaSyByd2jWrm5UC_OMNUvVglYhnscBvDX1-q8",
+//   apiKey: process.env.FIREBASE_API_KEY_2,
 //   authDomain: "nobu-aabd1.firebaseapp.com",
 //   databaseURL: "https://nobu-aabd1-default-rtdb.firebaseio.com",
 //   projectId: "nobu-aabd1",
@@ -48,7 +48,7 @@ export const storage = getStorage(app);
 // import { getDatabase } from "firebase/database";
 
 // const firebaseConfig = {
-//   apiKey: "AIzaSyBFEIMycmRpoliAtAj_PIEkfiAOxCHHfeQ",
+//   apiKey: process.env.FIREBASE_API_KEY_3,
 //   authDomain: "chatapp-53682.firebaseapp.com",
 //   projectId: "chatapp-53682",
 //   storageBucket: "chatapp-53682.appspot.com",
@@ -69,7 +69,7 @@ export const storage = getStorage(app);
 // import { getDatabase } from "firebase/database";
 
 // const firebaseConfig = {
-//   apiKey: "AIzaSyBFz9NjKADruLk10SZJKikPFH3Y6iyQjhU",
+//   apiKey: process.env.FIREBASE_API_KEY_4,
 //   authDomain: "dobu-347be.firebaseapp.com",
 //   projectId: "dobu-347be",
 //   storageBucket: "dobu-347be.appspot.com",
